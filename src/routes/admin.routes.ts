@@ -4,7 +4,7 @@ import { prisma } from "../lib/prisma";
 const router = Router();
 
 // ============ MIDDLEWARE - Error Handler ============
-const asyncHandler = (fn: (req: Request, res: Response, next: NextFunction) => Promise<void>) =>
+const asyncHandler = (fn: (req: Request, res: Response, next: NextFunction) => Promise<unknown>) =>
   (req: Request, res: Response, next: NextFunction) => {
     Promise.resolve(fn(req, res, next)).catch(next);
   };
@@ -67,7 +67,7 @@ router.get(
 // ============ ADVANCED ANALYTICS BY DATE RANGE ============
 router.get(
   "/analytics/timeline",
-  async (req: Request, res: Response) => {
+  asyncHandler(async (req: Request, res: Response) => {
     const { startDate, endDate, groupBy = "day" } = req.query;
 
     if (!startDate || !endDate) {
@@ -93,11 +93,12 @@ router.get(
 
     res.json({ data: groupedData, range: { start, end } });
   })
+);
 
 // ============ ADVANCED SEARCH ============
 router.get(
   "/search",
-  async (req: Request, res: Response) => {
+  asyncHandler(async (req: Request, res: Response) => {
     const { query, type, limit = "10" } = req.query as {
       query: string;
       type?: string;
@@ -158,12 +159,56 @@ router.get(
 
     res.json(results);
   })
+);
+
+// ============ ACTIVE CHATS (ARRAY FORMAT) ============
+router.get(
+  "/chats/active",
+  asyncHandler(async (req: Request, res: Response) => {
+    const chats = await prisma.chatSession.findMany({
+      where: { status: "ACTIVE" },
+      orderBy: { updatedAt: "desc" },
+      include: {
+        user: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            role: true,
+          },
+        },
+        messages: {
+          take: 1,
+          orderBy: { createdAt: "desc" },
+          include: {
+            user: {
+              select: {
+                id: true,
+                name: true,
+                email: true,
+                role: true,
+              },
+            },
+          },
+        },
+        _count: { select: { messages: true } },
+      },
+    });
+
+    const formattedChats = chats.map((chat) => ({
+      ...chat,
+      lastMessage: chat.messages[0]?.content || null,
+    }));
+
+    res.json(formattedChats);
+  })
+);
 
 // ============ ENHANCED CHATS WITH FILTERS ============
 router.get(
   "/chats",
   asyncHandler(async (req: Request, res: Response) => {
-    const { status, search, sortBy = "updatedAt", page = "1", startDate, endDate } =
+    const { status, search, sortBy = "updatedAt", page = "1", startDate, endDate, array } =
       req.query;
     const pageNum = Math.max(parseInt(page as string) || 1, 1);
     const pageSize = 20;
@@ -187,13 +232,37 @@ router.get(
       where,
       orderBy: { [sortBy as string]: "desc" },
       include: {
-        user: true,
-        messages: { take: 1, orderBy: { createdAt: "desc" } },
+        user: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            role: true,
+          },
+        },
+        messages: {
+          take: 1,
+          orderBy: { createdAt: "desc" },
+          include: {
+            user: {
+              select: {
+                id: true,
+                name: true,
+                email: true,
+                role: true,
+              },
+            },
+          },
+        },
         _count: { select: { messages: true } },
       },
-      skip: (pageNum - 1) * pageSize,
-      take: pageSize,
+      skip: array === "true" ? 0 : (pageNum - 1) * pageSize,
+      take: array === "true" ? 1000 : pageSize,
     });
+
+    if (array === "true") {
+      return res.json(chats);
+    }
 
     const total = await prisma.chatSession.count({ where });
 
@@ -212,7 +281,7 @@ router.get(
 // ============ CHAT MESSAGES WITH SEARCH ============
 router.get(
   "/chats/:id/messages",
-  async (req: Request, res: Response) => {
+  asyncHandler(async (req: Request, res: Response) => {
     const { search, page = "1" } = req.query;
     const pageNum = Math.max(parseInt(page as string) || 1, 1);
     const pageSize = 50;
@@ -236,12 +305,32 @@ router.get(
         orderBy: { createdAt: "asc" },
         skip: (pageNum - 1) * pageSize,
         take: pageSize,
+        include: {
+          user: {
+            select: {
+              id: true,
+              name: true,
+              email: true,
+              role: true,
+            },
+          },
+        },
       }),
       prisma.message.count({ where }),
     ]);
 
+    const formattedMessages = messages.map((msg) => ({
+      id: msg.id,
+      content: msg.content,
+      isBot: msg.isBot,
+      createdAt: msg.createdAt,
+      sender: msg.isBot ? "ADMIN" : "USER",
+      userId: msg.userId,
+      user: msg.user,
+    }));
+
     res.json({
-      data: messages,
+      data: formattedMessages,
       pagination: {
         page: pageNum,
         pageSize,
@@ -250,11 +339,12 @@ router.get(
       },
     });
   })
+);
 
 // ============ CLOSE CHAT ============
 router.post(
   "/chats/:id/close",
-  async (req: Request, res: Response) => {
+  asyncHandler(async (req: Request, res: Response) => {
     const { reason, notes } = req.body as {
       reason: string;
       notes?: string;
@@ -264,7 +354,7 @@ router.post(
       return res.status(400).json({ error: "Reason is required" });
     }
 
-    await prisma.chatSession.update({
+    const chat = await prisma.chatSession.update({
       where: { id: req.params.id },
       data: {
         status: "CLOSED",
@@ -272,10 +362,23 @@ router.post(
         closureReason: reason,
         notes,
       },
+      include: {
+        user: true,
+      },
     });
+
+    const io = (global as any).io;
+    if (io) {
+      io.to(req.params.id).emit("chat-closed-by-admin", {
+        chatId: req.params.id,
+        reason: reason,
+        message: "This chat has been closed by an administrator",
+      });
+    }
 
     res.json({ ok: true, message: "Chat closed successfully" });
   })
+);
 
 // ============ REOPEN CHAT ============
 router.post(
@@ -295,7 +398,7 @@ router.post(
 // ============ ASSIGN CHAT TO AGENT ============
 router.post(
   "/chats/:id/assign",
-  async (req: Request, res: Response) => {
+  asyncHandler(async (req: Request, res: Response) => {
     const { agentId } = req.body as { agentId: string };
 
     if (!agentId) {
@@ -314,11 +417,12 @@ router.post(
 
     res.json({ ok: true, message: "Chat assigned successfully" });
   })
+);
 
 // ============ ADD INTERNAL NOTES TO CHAT ============
 router.post(
   "/chats/:id/notes",
-  async (req: Request, res: Response) => {
+  asyncHandler(async (req: Request, res: Response) => {
     const { notes } = req.body as { notes: string };
 
     if (!notes) {
@@ -332,6 +436,7 @@ router.post(
 
     res.json({ ok: true, message: "Notes added successfully" });
   })
+);
 
 // ============ USER MANAGEMENT ============
 router.get(
@@ -383,10 +488,40 @@ router.get(
   })
 );
 
+router.get(
+  "/users/ensure-admin",
+  asyncHandler(async (_req: Request, res: Response) => {
+    let admin = await prisma.user.findFirst({
+      where: { role: "ADMIN" },
+    });
+
+    if (!admin) {
+      const bcrypt = require("bcrypt");
+      admin = await prisma.user.create({
+        data: {
+          email: "admin@chatbot.com",
+          name: "Admin User",
+          password: await bcrypt.hash("admin123", 10),
+          role: "ADMIN",
+        },
+      });
+    }
+
+    res.json({
+      admin: {
+        id: admin.id,
+        name: admin.name,
+        email: admin.email,
+        role: admin.role,
+      },
+    });
+  })
+);
+
 // Get single user details
 router.get(
   "/users/:id",
-  async (req: Request, res: Response) => {
+  asyncHandler(async (req: Request, res: Response) => {
     const user = await prisma.user.findUnique({
       where: { id: req.params.id },
       include: {
@@ -400,13 +535,13 @@ router.get(
     }
 
     res.json(user);
-  }
+  })
 );
 
 // Update user role
 router.patch(
   "/users/:id/role",
-  async (req: Request, res: Response) => {
+  asyncHandler(async (req: Request, res: Response) => {
     const { role } = req.body as { role: string };
 
     if (!["USER", "ADMIN", "AGENT"].includes(role)) {
@@ -420,11 +555,12 @@ router.patch(
 
     res.json({ ok: true, message: "User role updated" });
   })
+);
 
 // Ban/Unban user
 router.patch(
   "/users/:id/status",
-  async (req: Request, res: Response) => {
+  asyncHandler(async (req: Request, res: Response) => {
     const { isBanned } = req.body as { isBanned: boolean };
 
     if (typeof isBanned !== "boolean") {
@@ -441,6 +577,7 @@ router.patch(
       message: `User ${isBanned ? "banned" : "unbanned"}`,
     });
   })
+);
 
 
 // Delete user
@@ -634,7 +771,7 @@ router.get(
 // ============ EXPORT DATA ============
 router.get(
   "/export/chats",
-  async (req: Request, res: Response) => {
+  asyncHandler(async (req: Request, res: Response) => {
     const { format = "json", status } = req.query;
 
     const where = status ? { status } : {};
@@ -660,6 +797,7 @@ router.get(
       count: chats.length,
     });
   })
+);
 
 // Export users
 router.get(

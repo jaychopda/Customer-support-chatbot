@@ -1,4 +1,4 @@
-import express, { Request, Response } from "express";
+import express, { Request, Response, NextFunction } from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
 import adminRoutes from "./routes/admin.routes";
@@ -14,21 +14,32 @@ app.use(cookieParser());
 app.post("/chat/start", async (req: Request, res: Response) => {
     try {
         const { name } = req.body as { name?: string };
-        let userId: string | undefined;
+        let userId: string;
 
         if (name) {
-            const user = await prisma.user.create({ data: { name, email: "", password: "" } });
+            const email = `guest_${Date.now()}@chatbot.local`;
+            const password = Math.random().toString(36).slice(-12);
+            const user = await prisma.user.create({ 
+                data: { name, email, password } 
+            });
+            userId = user.id;
+        } else {
+            const email = `guest_${Date.now()}@chatbot.local`;
+            const password = Math.random().toString(36).slice(-12);
+            const user = await prisma.user.create({ 
+                data: { name: "Guest User", email, password } 
+            });
             userId = user.id;
         }
 
         const chat = await prisma.chatSession.create({
-            data: userId ? { user: { connect: { id: userId } } } : {},
+            data: { userId },
         });
 
         res.cookie("chat_session_id", chat.id, {
             httpOnly: false,
             sameSite: "lax",
-            maxAge: 1000 * 60 * 60 * 24 * 30, // 30 days
+            maxAge: 1000 * 60 * 60 * 24 * 30,
         });
 
         res.json({ chat });
@@ -42,6 +53,16 @@ app.get("/chat/:id", async (req: Request, res: Response) => {
     try {
         const chat = await prisma.chatSession.findUnique({
             where: { id: req.params.id },
+            include: {
+                user: {
+                    select: {
+                        id: true,
+                        name: true,
+                        email: true,
+                        role: true,
+                    },
+                },
+            },
         });
 
         if (!chat) {
@@ -51,9 +72,29 @@ app.get("/chat/:id", async (req: Request, res: Response) => {
         const messages = await prisma.message.findMany({
             where: { chatId: chat.id },
             orderBy: { createdAt: "asc" },
+            include: {
+                user: {
+                    select: {
+                        id: true,
+                        name: true,
+                        email: true,
+                        role: true,
+                    },
+                },
+            },
         });
 
-        res.json({ chat, messages });
+        const formattedMessages = messages.map((msg) => ({
+            id: msg.id,
+            content: msg.content,
+            isBot: msg.isBot,
+            createdAt: msg.createdAt,
+            sender: msg.isBot ? "ADMIN" : "USER",
+            userId: msg.userId,
+            user: msg.user,
+        }));
+
+        res.json({ chat, messages: formattedMessages });
     } catch (error) {
         console.error("/chat/:id error", error);
         res.status(500).json({ error: "Unable to fetch chat" });
@@ -63,7 +104,7 @@ app.get("/chat/:id", async (req: Request, res: Response) => {
 app.post("/chat/:id/name", async (req: Request, res: Response) => {
     try {
         const { name } = req.body as { name?: string };
-        if (!name) {
+        if (!name || name.trim().length === 0) {
             return res.status(400).json({ error: "Name is required" });
         }
 
@@ -76,17 +117,12 @@ app.post("/chat/:id/name", async (req: Request, res: Response) => {
             return res.status(404).json({ error: "Chat not found" });
         }
 
-        let userId = chat.userId;
+        await prisma.user.update({ 
+            where: { id: chat.userId }, 
+            data: { name: name.trim() } 
+        });
 
-        if (userId) {
-            await prisma.user.update({ where: { id: userId }, data: { name } });
-        } else {
-            const user = await prisma.user.create({ data: { name } });
-            userId = user.id;
-            await prisma.chatSession.update({ where: { id: req.params.id }, data: { userId } });
-        }
-
-        res.json({ ok: true, userId });
+        res.json({ ok: true, userId: chat.userId });
     } catch (error) {
         console.error("/chat/:id/name error", error);
         res.status(500).json({ error: "Unable to save name" });
@@ -95,6 +131,14 @@ app.post("/chat/:id/name", async (req: Request, res: Response) => {
 
 app.post("/chat/:id/close", async (req: Request, res: Response) => {
     try {
+        const chat = await prisma.chatSession.findUnique({
+            where: { id: req.params.id },
+        });
+
+        if (!chat) {
+            return res.status(404).json({ error: "Chat not found" });
+        }
+
         await prisma.chatSession.update({
             where: { id: req.params.id },
             data: { status: "CLOSED", closedAt: new Date() },
@@ -111,6 +155,11 @@ app.use("/admin", adminRoutes);
 
 app.get("/", (_req: Request, res: Response) => {
     res.send("API is running...");
+});
+
+app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
+    console.error("Unhandled error:", err);
+    res.status(500).json({ error: "Internal server error" });
 });
 
 export default app;
