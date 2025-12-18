@@ -51,9 +51,14 @@ export const AnyNull = runtime.AnyNull
 
 
 export const ModelName = {
+  User: 'User',
   ChatSession: 'ChatSession',
   Message: 'Message',
-  User: 'User'
+  AdminSettings: 'AdminSettings',
+  ActivityLog: 'ActivityLog',
+  ChatFeedback: 'ChatFeedback',
+  AgentPerformance: 'AgentPerformance',
+  SystemLog: 'SystemLog'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -72,14 +77,33 @@ export const TransactionIsolationLevel = {
 export type TransactionIsolationLevel = (typeof TransactionIsolationLevel)[keyof typeof TransactionIsolationLevel]
 
 
+export const UserScalarFieldEnum = {
+  id: 'id',
+  email: 'email',
+  name: 'name',
+  password: 'password',
+  role: 'role',
+  isBanned: 'isBanned',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type UserScalarFieldEnum = (typeof UserScalarFieldEnum)[keyof typeof UserScalarFieldEnum]
+
+
 export const ChatSessionScalarFieldEnum = {
   id: 'id',
+  userId: 'userId',
+  assignedAgentId: 'assignedAgentId',
+  status: 'status',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt',
-  status: 'status',
   closedAt: 'closedAt',
-  lastMessage: 'lastMessage',
-  userId: 'userId'
+  duration: 'duration',
+  closureReason: 'closureReason',
+  notes: 'notes',
+  internalNotes: 'internalNotes',
+  satisfactionRating: 'satisfactionRating'
 } as const
 
 export type ChatSessionScalarFieldEnum = (typeof ChatSessionScalarFieldEnum)[keyof typeof ChatSessionScalarFieldEnum]
@@ -87,22 +111,82 @@ export type ChatSessionScalarFieldEnum = (typeof ChatSessionScalarFieldEnum)[key
 
 export const MessageScalarFieldEnum = {
   id: 'id',
+  chatId: 'chatId',
+  userId: 'userId',
   content: 'content',
-  sender: 'sender',
-  createdAt: 'createdAt',
-  chatId: 'chatId'
+  isBot: 'isBot',
+  createdAt: 'createdAt'
 } as const
 
 export type MessageScalarFieldEnum = (typeof MessageScalarFieldEnum)[keyof typeof MessageScalarFieldEnum]
 
 
-export const UserScalarFieldEnum = {
+export const AdminSettingsScalarFieldEnum = {
   id: 'id',
-  name: 'name',
+  maxChatsPerUser: 'maxChatsPerUser',
+  autoCloseTimeout: 'autoCloseTimeout',
+  maxMessageLength: 'maxMessageLength',
+  enableNotifications: 'enableNotifications',
+  enableAutoResponse: 'enableAutoResponse',
+  autoResponseMessage: 'autoResponseMessage',
+  maintenanceMode: 'maintenanceMode',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type AdminSettingsScalarFieldEnum = (typeof AdminSettingsScalarFieldEnum)[keyof typeof AdminSettingsScalarFieldEnum]
+
+
+export const ActivityLogScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  action: 'action',
+  details: 'details',
   createdAt: 'createdAt'
 } as const
 
-export type UserScalarFieldEnum = (typeof UserScalarFieldEnum)[keyof typeof UserScalarFieldEnum]
+export type ActivityLogScalarFieldEnum = (typeof ActivityLogScalarFieldEnum)[keyof typeof ActivityLogScalarFieldEnum]
+
+
+export const ChatFeedbackScalarFieldEnum = {
+  id: 'id',
+  chatId: 'chatId',
+  rating: 'rating',
+  comment: 'comment',
+  resolution: 'resolution',
+  wouldRecommend: 'wouldRecommend',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ChatFeedbackScalarFieldEnum = (typeof ChatFeedbackScalarFieldEnum)[keyof typeof ChatFeedbackScalarFieldEnum]
+
+
+export const AgentPerformanceScalarFieldEnum = {
+  id: 'id',
+  agentId: 'agentId',
+  totalChats: 'totalChats',
+  closedChats: 'closedChats',
+  avgResolutionTime: 'avgResolutionTime',
+  avgRating: 'avgRating',
+  totalMessages: 'totalMessages',
+  date: 'date',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type AgentPerformanceScalarFieldEnum = (typeof AgentPerformanceScalarFieldEnum)[keyof typeof AgentPerformanceScalarFieldEnum]
+
+
+export const SystemLogScalarFieldEnum = {
+  id: 'id',
+  level: 'level',
+  message: 'message',
+  metadata: 'metadata',
+  createdAt: 'createdAt'
+} as const
+
+export type SystemLogScalarFieldEnum = (typeof SystemLogScalarFieldEnum)[keyof typeof SystemLogScalarFieldEnum]
 
 
 export const SortOrder = {

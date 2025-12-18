@@ -9,17 +9,7 @@
 * 🟢 You can import this file directly.
 */
 
-export const Sender = {
-  USER: 'USER',
-  ADMIN: 'ADMIN'
-} as const
-
-export type Sender = (typeof Sender)[keyof typeof Sender]
 
 
-export const ChatStatus = {
-  ACTIVE: 'ACTIVE',
-  CLOSED: 'CLOSED'
-} as const
-
-export type ChatStatus = (typeof ChatStatus)[keyof typeof ChatStatus]
+// This file is empty because there are no enums in the schema.
+export {}

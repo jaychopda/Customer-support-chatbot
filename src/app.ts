@@ -17,14 +17,12 @@ app.post("/chat/start", async (req: Request, res: Response) => {
         let userId: string | undefined;
 
         if (name) {
-            const user = await prisma.user.create({ data: { name } });
+            const user = await prisma.user.create({ data: { name, email: "", password: "" } });
             userId = user.id;
         }
 
         const chat = await prisma.chatSession.create({
-            data: {
-                ...(userId && { user: { connect: { id: userId } } }),
-            },
+            data: userId ? { user: { connect: { id: userId } } } : {},
         });
 
         res.cookie("chat_session_id", chat.id, {

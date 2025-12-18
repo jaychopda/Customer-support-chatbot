@@ -20,7 +20,7 @@ const config: runtime.GetPrismaClientConfig = {
   "clientVersion": "7.2.0",
   "engineVersion": "0c8ef2ce45c83248ab3df073180d5eda9e8be7a3",
   "activeProvider": "postgresql",
-  "inlineSchema": "// This is your Prisma schema file,\n// learn more about it in the docs: https://pris.ly/d/prisma-schema\n\n// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?\n// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init\n\ngenerator client {\n  provider = \"prisma-client\"\n  output   = \"../generated/prisma\"\n}\n\ndatasource db {\n  provider = \"postgresql\"\n}\n\nmodel ChatSession {\n  id          String     @id @default(uuid())\n  createdAt   DateTime   @default(now())\n  updatedAt   DateTime   @updatedAt\n  status      ChatStatus @default(ACTIVE)\n  closedAt    DateTime?\n  lastMessage String?\n  messages    Message[]\n  userId      String?\n  user        User?      @relation(fields: [userId], references: [id])\n}\n\nmodel Message {\n  id        String   @id @default(uuid())\n  content   String\n  sender    Sender\n  createdAt DateTime @default(now())\n\n  chatId String\n  chat   ChatSession @relation(fields: [chatId], references: [id])\n}\n\nmodel User {\n  id           String        @id @default(uuid())\n  name         String\n  createdAt    DateTime      @default(now())\n  chatSessions ChatSession[]\n}\n\nenum Sender {\n  USER\n  ADMIN\n}\n\nenum ChatStatus {\n  ACTIVE\n  CLOSED\n}\n",
+  "inlineSchema": "// This is your Prisma schema file,\n// learn more about it in the docs: https://pris.ly/d/prisma-schema\n\ngenerator client {\n  provider = \"prisma-client\"\n  output   = \"../generated/prisma\"\n}\n\ndatasource db {\n  provider = \"postgresql\"\n}\n\n// ============ USER MODEL ============\nmodel User {\n  id        String   @id @default(cuid())\n  email     String   @unique\n  name      String\n  password  String\n  role      String   @default(\"USER\") // USER, ADMIN, AGENT\n  isBanned  Boolean  @default(false)\n  createdAt DateTime @default(now())\n  updatedAt DateTime @updatedAt\n\n  // Relations\n  chats            ChatSession[]\n  messages         Message[]\n  assignedChats    ChatSession[]      @relation(\"AssignedAgent\")\n  activityLogs     ActivityLog[]\n  agentPerformance AgentPerformance[]\n\n  @@index([email])\n  @@index([role])\n  @@index([isBanned])\n  @@map(\"users\")\n}\n\n// ============ CHAT SESSION MODEL ============\nmodel ChatSession {\n  id String @id @default(cuid())\n\n  // User relation\n  userId String\n  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)\n\n  // Agent assignment\n  assignedAgentId String?\n  assignedAgent   User?   @relation(\"AssignedAgent\", fields: [assignedAgentId], references: [id], onDelete: SetNull)\n\n  // Status and timestamps\n  status    String    @default(\"ACTIVE\") // ACTIVE, CLOSED\n  createdAt DateTime  @default(now())\n  updatedAt DateTime  @updatedAt\n  closedAt  DateTime?\n\n  // Chat metadata\n  duration           Int? // in seconds\n  closureReason      String?\n  notes              String? @db.Text\n  internalNotes      String? @db.Text\n  satisfactionRating Int? // 1-5 rating\n\n  // Relations\n  messages Message[]\n  feedback ChatFeedback?\n\n  @@index([userId])\n  @@index([assignedAgentId])\n  @@index([status])\n  @@index([createdAt])\n  @@index([closedAt])\n  @@map(\"chat_sessions\")\n}\n\n// ============ MESSAGE MODEL ============\nmodel Message {\n  id String @id @default(cuid())\n\n  // Chat relation\n  chatId String\n  chat   ChatSession @relation(fields: [chatId], references: [id], onDelete: Cascade)\n\n  // User relation\n  userId String\n  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)\n\n  // Message content\n  content   String   @db.Text\n  isBot     Boolean  @default(false)\n  createdAt DateTime @default(now())\n\n  @@index([chatId])\n  @@index([userId])\n  @@index([createdAt])\n  @@map(\"messages\")\n}\n\n// ============ ADMIN SETTINGS MODEL ============\nmodel AdminSettings {\n  id String @id @default(\"default\")\n\n  // Chat configuration\n  maxChatsPerUser  Int @default(5)\n  autoCloseTimeout Int @default(3600) // seconds\n  maxMessageLength Int @default(5000)\n\n  // Features\n  enableNotifications Boolean @default(true)\n  enableAutoResponse  Boolean @default(true)\n  autoResponseMessage String? @db.Text\n\n  // System\n  maintenanceMode Boolean @default(false)\n\n  // Timestamps\n  createdAt DateTime @default(now())\n  updatedAt DateTime @updatedAt\n\n  @@map(\"admin_settings\")\n}\n\n// ============ ACTIVITY LOG MODEL ============\nmodel ActivityLog {\n  id String @id @default(cuid())\n\n  // User who performed action\n  userId String\n  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)\n\n  // Action details\n  action  String // e.g., \"USER_BANNED\", \"CHAT_CLOSED\", \"ROLE_CHANGED\", \"USER_CREATED\", \"SETTINGS_UPDATED\"\n  details String? @db.Text\n\n  // Timestamp\n  createdAt DateTime @default(now())\n\n  @@index([userId])\n  @@index([action])\n  @@index([createdAt])\n  @@map(\"activity_logs\")\n}\n\n// ============ OPTIONAL: FEEDBACK MODEL (for extended functionality) ============\nmodel ChatFeedback {\n  id String @id @default(cuid())\n\n  // Chat relation\n  chatId String      @unique\n  chat   ChatSession @relation(fields: [chatId], references: [id], onDelete: Cascade)\n\n  // Feedback data\n  rating         Int // 1-5 stars\n  comment        String?  @db.Text\n  resolution     Boolean // Was issue resolved?\n  wouldRecommend Boolean? // Would recommend?\n\n  // Timestamps\n  createdAt DateTime @default(now())\n  updatedAt DateTime @updatedAt\n\n  @@index([rating])\n  @@index([resolution])\n  @@map(\"chat_feedbacks\")\n}\n\n// ============ OPTIONAL: AGENT PERFORMANCE MODEL ============\nmodel AgentPerformance {\n  id String @id @default(cuid())\n\n  // Agent relation\n  agentId String\n  agent   User   @relation(fields: [agentId], references: [id], onDelete: Cascade)\n\n  // Performance metrics\n  totalChats        Int    @default(0)\n  closedChats       Int    @default(0)\n  avgResolutionTime Int? // in seconds\n  avgRating         Float? // average satisfaction rating\n  totalMessages     Int    @default(0)\n\n  // Timestamps\n  date      DateTime @default(now())\n  createdAt DateTime @default(now())\n  updatedAt DateTime @updatedAt\n\n  @@unique([agentId, date])\n  @@index([agentId])\n  @@index([date])\n  @@map(\"agent_performance\")\n}\n\n// ============ OPTIONAL: SYSTEM LOGS MODEL ============\nmodel SystemLog {\n  id String @id @default(cuid())\n\n  // Log details\n  level    String // \"INFO\", \"WARNING\", \"ERROR\"\n  message  String  @db.Text\n  metadata String? @db.Text\n\n  // Timestamp\n  createdAt DateTime @default(now())\n\n  @@index([level])\n  @@index([createdAt])\n  @@map(\"system_logs\")\n}\n",
   "runtimeDataModel": {
     "models": {},
     "enums": {},
@@ -28,7 +28,7 @@ const config: runtime.GetPrismaClientConfig = {
   }
 }
 
-config.runtimeDataModel = JSON.parse("{\"models\":{\"ChatSession\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"updatedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"status\",\"kind\":\"enum\",\"type\":\"ChatStatus\"},{\"name\":\"closedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"lastMessage\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"messages\",\"kind\":\"object\",\"type\":\"Message\",\"relationName\":\"ChatSessionToMessage\"},{\"name\":\"userId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"user\",\"kind\":\"object\",\"type\":\"User\",\"relationName\":\"ChatSessionToUser\"}],\"dbName\":null},\"Message\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"content\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sender\",\"kind\":\"enum\",\"type\":\"Sender\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"chatId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"chat\",\"kind\":\"object\",\"type\":\"ChatSession\",\"relationName\":\"ChatSessionToMessage\"}],\"dbName\":null},\"User\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"name\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"chatSessions\",\"kind\":\"object\",\"type\":\"ChatSession\",\"relationName\":\"ChatSessionToUser\"}],\"dbName\":null}},\"enums\":{},\"types\":{}}")
+config.runtimeDataModel = JSON.parse("{\"models\":{\"User\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"email\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"name\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"password\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"role\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"isBanned\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"updatedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"chats\",\"kind\":\"object\",\"type\":\"ChatSession\",\"relationName\":\"ChatSessionToUser\"},{\"name\":\"messages\",\"kind\":\"object\",\"type\":\"Message\",\"relationName\":\"MessageToUser\"},{\"name\":\"assignedChats\",\"kind\":\"object\",\"type\":\"ChatSession\",\"relationName\":\"AssignedAgent\"},{\"name\":\"activityLogs\",\"kind\":\"object\",\"type\":\"ActivityLog\",\"relationName\":\"ActivityLogToUser\"},{\"name\":\"agentPerformance\",\"kind\":\"object\",\"type\":\"AgentPerformance\",\"relationName\":\"AgentPerformanceToUser\"}],\"dbName\":\"users\"},\"ChatSession\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"userId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"user\",\"kind\":\"object\",\"type\":\"User\",\"relationName\":\"ChatSessionToUser\"},{\"name\":\"assignedAgentId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"assignedAgent\",\"kind\":\"object\",\"type\":\"User\",\"relationName\":\"AssignedAgent\"},{\"name\":\"status\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"updatedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"closedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"duration\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"closureReason\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"notes\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"internalNotes\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"satisfactionRating\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"messages\",\"kind\":\"object\",\"type\":\"Message\",\"relationName\":\"ChatSessionToMessage\"},{\"name\":\"feedback\",\"kind\":\"object\",\"type\":\"ChatFeedback\",\"relationName\":\"ChatFeedbackToChatSession\"}],\"dbName\":\"chat_sessions\"},\"Message\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"chatId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"chat\",\"kind\":\"object\",\"type\":\"ChatSession\",\"relationName\":\"ChatSessionToMessage\"},{\"name\":\"userId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"user\",\"kind\":\"object\",\"type\":\"User\",\"relationName\":\"MessageToUser\"},{\"name\":\"content\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"isBot\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"}],\"dbName\":\"messages\"},\"AdminSettings\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"maxChatsPerUser\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"autoCloseTimeout\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"maxMessageLength\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"enableNotifications\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"enableAutoResponse\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"autoResponseMessage\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"maintenanceMode\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"updatedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"}],\"dbName\":\"admin_settings\"},\"ActivityLog\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"userId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"user\",\"kind\":\"object\",\"type\":\"User\",\"relationName\":\"ActivityLogToUser\"},{\"name\":\"action\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"details\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"}],\"dbName\":\"activity_logs\"},\"ChatFeedback\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"chatId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"chat\",\"kind\":\"object\",\"type\":\"ChatSession\",\"relationName\":\"ChatFeedbackToChatSession\"},{\"name\":\"rating\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"comment\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"resolution\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"wouldRecommend\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"updatedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"}],\"dbName\":\"chat_feedbacks\"},\"AgentPerformance\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"agentId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"agent\",\"kind\":\"object\",\"type\":\"User\",\"relationName\":\"AgentPerformanceToUser\"},{\"name\":\"totalChats\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"closedChats\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"avgResolutionTime\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"avgRating\",\"kind\":\"scalar\",\"type\":\"Float\"},{\"name\":\"totalMessages\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"date\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"updatedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"}],\"dbName\":\"agent_performance\"},\"SystemLog\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"level\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"message\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"metadata\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"}],\"dbName\":\"system_logs\"}},\"enums\":{},\"types\":{}}")
 
 async function decodeBase64AsWasm(wasmBase64: string): Promise<WebAssembly.Module> {
   const { Buffer } = await import('node:buffer')
@@ -58,8 +58,8 @@ export interface PrismaClientConstructor {
    * @example
    * ```
    * const prisma = new PrismaClient()
-   * // Fetch zero or more ChatSessions
-   * const chatSessions = await prisma.chatSession.findMany()
+   * // Fetch zero or more Users
+   * const users = await prisma.user.findMany()
    * ```
    * 
    * Read more in our [docs](https://pris.ly/d/client).
@@ -80,8 +80,8 @@ export interface PrismaClientConstructor {
  * @example
  * ```
  * const prisma = new PrismaClient()
- * // Fetch zero or more ChatSessions
- * const chatSessions = await prisma.chatSession.findMany()
+ * // Fetch zero or more Users
+ * const users = await prisma.user.findMany()
  * ```
  * 
  * Read more in our [docs](https://pris.ly/d/client).
@@ -175,6 +175,16 @@ export interface PrismaClient<
   }>>
 
       /**
+   * `prisma.user`: Exposes CRUD operations for the **User** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more Users
+    * const users = await prisma.user.findMany()
+    * ```
+    */
+  get user(): Prisma.UserDelegate<ExtArgs, { omit: OmitOpts }>;
+
+  /**
    * `prisma.chatSession`: Exposes CRUD operations for the **ChatSession** model.
     * Example usage:
     * ```ts
@@ -195,14 +205,54 @@ export interface PrismaClient<
   get message(): Prisma.MessageDelegate<ExtArgs, { omit: OmitOpts }>;
 
   /**
-   * `prisma.user`: Exposes CRUD operations for the **User** model.
+   * `prisma.adminSettings`: Exposes CRUD operations for the **AdminSettings** model.
     * Example usage:
     * ```ts
-    * // Fetch zero or more Users
-    * const users = await prisma.user.findMany()
+    * // Fetch zero or more AdminSettings
+    * const adminSettings = await prisma.adminSettings.findMany()
     * ```
     */
-  get user(): Prisma.UserDelegate<ExtArgs, { omit: OmitOpts }>;
+  get adminSettings(): Prisma.AdminSettingsDelegate<ExtArgs, { omit: OmitOpts }>;
+
+  /**
+   * `prisma.activityLog`: Exposes CRUD operations for the **ActivityLog** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more ActivityLogs
+    * const activityLogs = await prisma.activityLog.findMany()
+    * ```
+    */
+  get activityLog(): Prisma.ActivityLogDelegate<ExtArgs, { omit: OmitOpts }>;
+
+  /**
+   * `prisma.chatFeedback`: Exposes CRUD operations for the **ChatFeedback** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more ChatFeedbacks
+    * const chatFeedbacks = await prisma.chatFeedback.findMany()
+    * ```
+    */
+  get chatFeedback(): Prisma.ChatFeedbackDelegate<ExtArgs, { omit: OmitOpts }>;
+
+  /**
+   * `prisma.agentPerformance`: Exposes CRUD operations for the **AgentPerformance** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more AgentPerformances
+    * const agentPerformances = await prisma.agentPerformance.findMany()
+    * ```
+    */
+  get agentPerformance(): Prisma.AgentPerformanceDelegate<ExtArgs, { omit: OmitOpts }>;
+
+  /**
+   * `prisma.systemLog`: Exposes CRUD operations for the **SystemLog** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more SystemLogs
+    * const systemLogs = await prisma.systemLog.findMany()
+    * ```
+    */
+  get systemLog(): Prisma.SystemLogDelegate<ExtArgs, { omit: OmitOpts }>;
 }
 
 export function getPrismaClientClass(): PrismaClientConstructor {

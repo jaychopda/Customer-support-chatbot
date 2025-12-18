@@ -1,9 +1,6 @@
 // This is your Prisma schema file,
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client"
   output   = "../generated/prisma"
@@ -13,41 +10,197 @@ datasource db {
   provider = "postgresql"
 }
 
-model ChatSession {
-  id           String     @id @default(uuid())
-  createdAt    DateTime   @default(now())
-  updatedAt    DateTime   @updatedAt
-  status       ChatStatus @default(ACTIVE)
-  closedAt     DateTime?
-  lastMessage  String?
-  messages     Message[]
-  userId       String?
-  user         User?      @relation(fields: [userId], references: [id])
-}
-
-model Message {
-  id        String      @id @default(uuid())
-  content   String
-  sender    Sender
-  createdAt DateTime    @default(now())
-
-  chatId    String
-  chat      ChatSession @relation(fields: [chatId], references: [id])
-}
-
+// ============ USER MODEL ============
 model User {
-  id          String        @id @default(uuid())
-  name        String
-  createdAt   DateTime      @default(now())
-  chatSessions ChatSession[]
+  id            String    @id @default(cuid())
+  email         String    @unique
+  name          String
+  password      String
+  role          String    @default("USER") // USER, ADMIN, AGENT
+  isBanned      Boolean   @default(false)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  // Relations
+  chats         ChatSession[]
+  messages      Message[]
+  assignedChats ChatSession[] @relation("AssignedAgent")
+  activityLogs  ActivityLog[]
+  agentPerformance AgentPerformance[]
+
+  @@map("users")
+  @@index([email])
+  @@index([role])
+  @@index([isBanned])
 }
 
-enum Sender {
-  USER
-  ADMIN
+// ============ CHAT SESSION MODEL ============
+model ChatSession {
+  id                String    @id @default(cuid())
+  
+  // User relation
+  userId            String
+  user              User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Agent assignment
+  assignedAgentId   String?
+  assignedAgent     User?     @relation("AssignedAgent", fields: [assignedAgentId], references: [id], onDelete: SetNull)
+
+  // Status and timestamps
+  status            String    @default("ACTIVE") // ACTIVE, CLOSED
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+  closedAt          DateTime?
+
+  // Chat metadata
+  duration          Int?      // in seconds
+  closureReason     String?
+  notes             String?   @db.Text
+  internalNotes     String?   @db.Text
+  satisfactionRating Int?     // 1-5 rating
+
+  // Relations
+  messages          Message[]
+  feedback          ChatFeedback?
+
+  @@map("chat_sessions")
+  @@index([userId])
+  @@index([assignedAgentId])
+  @@index([status])
+  @@index([createdAt])
+  @@index([closedAt])
 }
 
-enum ChatStatus {
-  ACTIVE
-  CLOSED
+// ============ MESSAGE MODEL ============
+model Message {
+  id        String    @id @default(cuid())
+  
+  // Chat relation
+  chatId    String
+  chat      ChatSession @relation(fields: [chatId], references: [id], onDelete: Cascade)
+
+  // User relation
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Message content
+  content   String    @db.Text
+  isBot     Boolean   @default(false)
+  createdAt DateTime  @default(now())
+
+  @@map("messages")
+  @@index([chatId])
+  @@index([userId])
+  @@index([createdAt])
+}
+
+// ============ ADMIN SETTINGS MODEL ============
+model AdminSettings {
+  id                   String  @id @default("default")
+  
+  // Chat configuration
+  maxChatsPerUser      Int     @default(5)
+  autoCloseTimeout     Int     @default(3600) // seconds
+  maxMessageLength     Int     @default(5000)
+
+  // Features
+  enableNotifications  Boolean @default(true)
+  enableAutoResponse   Boolean @default(true)
+  autoResponseMessage  String? @db.Text
+  
+  // System
+  maintenanceMode      Boolean @default(false)
+
+  // Timestamps
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+
+  @@map("admin_settings")
+}
+
+// ============ ACTIVITY LOG MODEL ============
+model ActivityLog {
+  id        String    @id @default(cuid())
+  
+  // User who performed action
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Action details
+  action    String    // e.g., "USER_BANNED", "CHAT_CLOSED", "ROLE_CHANGED", "USER_CREATED", "SETTINGS_UPDATED"
+  details   String?   @db.Text
+  
+  // Timestamp
+  createdAt DateTime  @default(now())
+
+  @@map("activity_logs")
+  @@index([userId])
+  @@index([action])
+  @@index([createdAt])
+}
+
+// ============ OPTIONAL: FEEDBACK MODEL (for extended functionality) ============
+model ChatFeedback {
+  id              String    @id @default(cuid())
+  
+  // Chat relation
+  chatId          String    @unique
+  chat            ChatSession @relation(fields: [chatId], references: [id], onDelete: Cascade)
+
+  // Feedback data
+  rating          Int       // 1-5 stars
+  comment         String?   @db.Text
+  resolution      Boolean   // Was issue resolved?
+  wouldRecommend  Boolean?  // Would recommend?
+
+  // Timestamps
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  @@map("chat_feedbacks")
+  @@index([rating])
+  @@index([resolution])
+}
+
+// ============ OPTIONAL: AGENT PERFORMANCE MODEL ============
+model AgentPerformance {
+  id                  String    @id @default(cuid())
+  
+  // Agent relation
+  agentId             String
+  agent               User      @relation(fields: [agentId], references: [id], onDelete: Cascade)
+
+  // Performance metrics
+  totalChats          Int       @default(0)
+  closedChats         Int       @default(0)
+  avgResolutionTime   Int?      // in seconds
+  avgRating           Float?    // average satisfaction rating
+  totalMessages       Int       @default(0)
+
+  // Timestamps
+  date                DateTime  @default(now())
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+
+  @@map("agent_performance")
+  @@unique([agentId, date])
+  @@index([agentId])
+  @@index([date])
+}
+
+// ============ OPTIONAL: SYSTEM LOGS MODEL ============
+model SystemLog {
+  id        String    @id @default(cuid())
+  
+  // Log details
+  level     String    // "INFO", "WARNING", "ERROR"
+  message   String    @db.Text
+  metadata  String?   @db.Text
+  
+  // Timestamp
+  createdAt DateTime  @default(now())
+
+  @@map("system_logs")
+  @@index([level])
+  @@index([createdAt])
 }

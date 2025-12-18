@@ -26,40 +26,70 @@ export type AggregateUser = {
 
 export type UserMinAggregateOutputType = {
   id: string | null
+  email: string | null
   name: string | null
+  password: string | null
+  role: string | null
+  isBanned: boolean | null
   createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type UserMaxAggregateOutputType = {
   id: string | null
+  email: string | null
   name: string | null
+  password: string | null
+  role: string | null
+  isBanned: boolean | null
   createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type UserCountAggregateOutputType = {
   id: number
+  email: number
   name: number
+  password: number
+  role: number
+  isBanned: number
   createdAt: number
+  updatedAt: number
   _all: number
 }
 
 
 export type UserMinAggregateInputType = {
   id?: true
+  email?: true
   name?: true
+  password?: true
+  role?: true
+  isBanned?: true
   createdAt?: true
+  updatedAt?: true
 }
 
 export type UserMaxAggregateInputType = {
   id?: true
+  email?: true
   name?: true
+  password?: true
+  role?: true
+  isBanned?: true
   createdAt?: true
+  updatedAt?: true
 }
 
 export type UserCountAggregateInputType = {
   id?: true
+  email?: true
   name?: true
+  password?: true
+  role?: true
+  isBanned?: true
   createdAt?: true
+  updatedAt?: true
   _all?: true
 }
 
@@ -137,8 +167,13 @@ export type UserGroupByArgs<ExtArgs extends runtime.Types.Extensions.InternalArg
 
 export type UserGroupByOutputType = {
   id: string
+  email: string
   name: string
+  password: string
+  role: string
+  isBanned: boolean
   createdAt: Date
+  updatedAt: Date
   _count: UserCountAggregateOutputType | null
   _min: UserMinAggregateOutputType | null
   _max: UserMaxAggregateOutputType | null
@@ -164,32 +199,64 @@ export type UserWhereInput = {
   OR?: Prisma.UserWhereInput[]
   NOT?: Prisma.UserWhereInput | Prisma.UserWhereInput[]
   id?: Prisma.StringFilter<"User"> | string
+  email?: Prisma.StringFilter<"User"> | string
   name?: Prisma.StringFilter<"User"> | string
+  password?: Prisma.StringFilter<"User"> | string
+  role?: Prisma.StringFilter<"User"> | string
+  isBanned?: Prisma.BoolFilter<"User"> | boolean
   createdAt?: Prisma.DateTimeFilter<"User"> | Date | string
-  chatSessions?: Prisma.ChatSessionListRelationFilter
+  updatedAt?: Prisma.DateTimeFilter<"User"> | Date | string
+  chats?: Prisma.ChatSessionListRelationFilter
+  messages?: Prisma.MessageListRelationFilter
+  assignedChats?: Prisma.ChatSessionListRelationFilter
+  activityLogs?: Prisma.ActivityLogListRelationFilter
+  agentPerformance?: Prisma.AgentPerformanceListRelationFilter
 }
 
 export type UserOrderByWithRelationInput = {
   id?: Prisma.SortOrder
+  email?: Prisma.SortOrder
   name?: Prisma.SortOrder
+  password?: Prisma.SortOrder
+  role?: Prisma.SortOrder
+  isBanned?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
-  chatSessions?: Prisma.ChatSessionOrderByRelationAggregateInput
+  updatedAt?: Prisma.SortOrder
+  chats?: Prisma.ChatSessionOrderByRelationAggregateInput
+  messages?: Prisma.MessageOrderByRelationAggregateInput
+  assignedChats?: Prisma.ChatSessionOrderByRelationAggregateInput
+  activityLogs?: Prisma.ActivityLogOrderByRelationAggregateInput
+  agentPerformance?: Prisma.AgentPerformanceOrderByRelationAggregateInput
 }
 
 export type UserWhereUniqueInput = Prisma.AtLeast<{
   id?: string
+  email?: string
   AND?: Prisma.UserWhereInput | Prisma.UserWhereInput[]
   OR?: Prisma.UserWhereInput[]
   NOT?: Prisma.UserWhereInput | Prisma.UserWhereInput[]
   name?: Prisma.StringFilter<"User"> | string
+  password?: Prisma.StringFilter<"User"> | string
+  role?: Prisma.StringFilter<"User"> | string
+  isBanned?: Prisma.BoolFilter<"User"> | boolean
   createdAt?: Prisma.DateTimeFilter<"User"> | Date | string
-  chatSessions?: Prisma.ChatSessionListRelationFilter
-}, "id">
+  updatedAt?: Prisma.DateTimeFilter<"User"> | Date | string
+  chats?: Prisma.ChatSessionListRelationFilter
+  messages?: Prisma.MessageListRelationFilter
+  assignedChats?: Prisma.ChatSessionListRelationFilter
+  activityLogs?: Prisma.ActivityLogListRelationFilter
+  agentPerformance?: Prisma.AgentPerformanceListRelationFilter
+}, "id" | "email">
 
 export type UserOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
+  email?: Prisma.SortOrder
   name?: Prisma.SortOrder
+  password?: Prisma.SortOrder
+  role?: Prisma.SortOrder
+  isBanned?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   _count?: Prisma.UserCountOrderByAggregateInput
   _max?: Prisma.UserMaxOrderByAggregateInput
   _min?: Prisma.UserMinOrderByAggregateInput
@@ -200,54 +267,148 @@ export type UserScalarWhereWithAggregatesInput = {
   OR?: Prisma.UserScalarWhereWithAggregatesInput[]
   NOT?: Prisma.UserScalarWhereWithAggregatesInput | Prisma.UserScalarWhereWithAggregatesInput[]
   id?: Prisma.StringWithAggregatesFilter<"User"> | string
+  email?: Prisma.StringWithAggregatesFilter<"User"> | string
   name?: Prisma.StringWithAggregatesFilter<"User"> | string
+  password?: Prisma.StringWithAggregatesFilter<"User"> | string
+  role?: Prisma.StringWithAggregatesFilter<"User"> | string
+  isBanned?: Prisma.BoolWithAggregatesFilter<"User"> | boolean
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"User"> | Date | string
+  updatedAt?: Prisma.DateTimeWithAggregatesFilter<"User"> | Date | string
 }
 
 export type UserCreateInput = {
   id?: string
+  email: string
   name: string
+  password: string
+  role?: string
+  isBanned?: boolean
   createdAt?: Date | string
-  chatSessions?: Prisma.ChatSessionCreateNestedManyWithoutUserInput
+  updatedAt?: Date | string
+  chats?: Prisma.ChatSessionCreateNestedManyWithoutUserInput
+  messages?: Prisma.MessageCreateNestedManyWithoutUserInput
+  assignedChats?: Prisma.ChatSessionCreateNestedManyWithoutAssignedAgentInput
+  activityLogs?: Prisma.ActivityLogCreateNestedManyWithoutUserInput
+  agentPerformance?: Prisma.AgentPerformanceCreateNestedManyWithoutAgentInput
 }
 
 export type UserUncheckedCreateInput = {
   id?: string
+  email: string
   name: string
+  password: string
+  role?: string
+  isBanned?: boolean
   createdAt?: Date | string
-  chatSessions?: Prisma.ChatSessionUncheckedCreateNestedManyWithoutUserInput
+  updatedAt?: Date | string
+  chats?: Prisma.ChatSessionUncheckedCreateNestedManyWithoutUserInput
+  messages?: Prisma.MessageUncheckedCreateNestedManyWithoutUserInput
+  assignedChats?: Prisma.ChatSessionUncheckedCreateNestedManyWithoutAssignedAgentInput
+  activityLogs?: Prisma.ActivityLogUncheckedCreateNestedManyWithoutUserInput
+  agentPerformance?: Prisma.AgentPerformanceUncheckedCreateNestedManyWithoutAgentInput
 }
 
 export type UserUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.StringFieldUpdateOperationsInput | string
+  isBanned?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  chatSessions?: Prisma.ChatSessionUpdateManyWithoutUserNestedInput
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  chats?: Prisma.ChatSessionUpdateManyWithoutUserNestedInput
+  messages?: Prisma.MessageUpdateManyWithoutUserNestedInput
+  assignedChats?: Prisma.ChatSessionUpdateManyWithoutAssignedAgentNestedInput
+  activityLogs?: Prisma.ActivityLogUpdateManyWithoutUserNestedInput
+  agentPerformance?: Prisma.AgentPerformanceUpdateManyWithoutAgentNestedInput
 }
 
 export type UserUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.StringFieldUpdateOperationsInput | string
+  isBanned?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  chatSessions?: Prisma.ChatSessionUncheckedUpdateManyWithoutUserNestedInput
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  chats?: Prisma.ChatSessionUncheckedUpdateManyWithoutUserNestedInput
+  messages?: Prisma.MessageUncheckedUpdateManyWithoutUserNestedInput
+  assignedChats?: Prisma.ChatSessionUncheckedUpdateManyWithoutAssignedAgentNestedInput
+  activityLogs?: Prisma.ActivityLogUncheckedUpdateManyWithoutUserNestedInput
+  agentPerformance?: Prisma.AgentPerformanceUncheckedUpdateManyWithoutAgentNestedInput
 }
 
 export type UserCreateManyInput = {
   id?: string
+  email: string
   name: string
+  password: string
+  role?: string
+  isBanned?: boolean
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type UserUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.StringFieldUpdateOperationsInput | string
+  isBanned?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type UserUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.StringFieldUpdateOperationsInput | string
+  isBanned?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type UserCountOrderByAggregateInput = {
+  id?: Prisma.SortOrder
+  email?: Prisma.SortOrder
+  name?: Prisma.SortOrder
+  password?: Prisma.SortOrder
+  role?: Prisma.SortOrder
+  isBanned?: Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
+}
+
+export type UserMaxOrderByAggregateInput = {
+  id?: Prisma.SortOrder
+  email?: Prisma.SortOrder
+  name?: Prisma.SortOrder
+  password?: Prisma.SortOrder
+  role?: Prisma.SortOrder
+  isBanned?: Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
+}
+
+export type UserMinOrderByAggregateInput = {
+  id?: Prisma.SortOrder
+  email?: Prisma.SortOrder
+  name?: Prisma.SortOrder
+  password?: Prisma.SortOrder
+  role?: Prisma.SortOrder
+  isBanned?: Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
+}
+
+export type UserScalarRelationFilter = {
+  is?: Prisma.UserWhereInput
+  isNot?: Prisma.UserWhereInput
 }
 
 export type UserNullableScalarRelationFilter = {
@@ -255,78 +416,468 @@ export type UserNullableScalarRelationFilter = {
   isNot?: Prisma.UserWhereInput | null
 }
 
-export type UserCountOrderByAggregateInput = {
-  id?: Prisma.SortOrder
-  name?: Prisma.SortOrder
-  createdAt?: Prisma.SortOrder
+export type StringFieldUpdateOperationsInput = {
+  set?: string
 }
 
-export type UserMaxOrderByAggregateInput = {
-  id?: Prisma.SortOrder
-  name?: Prisma.SortOrder
-  createdAt?: Prisma.SortOrder
+export type BoolFieldUpdateOperationsInput = {
+  set?: boolean
 }
 
-export type UserMinOrderByAggregateInput = {
-  id?: Prisma.SortOrder
-  name?: Prisma.SortOrder
-  createdAt?: Prisma.SortOrder
+export type DateTimeFieldUpdateOperationsInput = {
+  set?: Date | string
 }
 
-export type UserCreateNestedOneWithoutChatSessionsInput = {
-  create?: Prisma.XOR<Prisma.UserCreateWithoutChatSessionsInput, Prisma.UserUncheckedCreateWithoutChatSessionsInput>
-  connectOrCreate?: Prisma.UserCreateOrConnectWithoutChatSessionsInput
+export type UserCreateNestedOneWithoutChatsInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutChatsInput, Prisma.UserUncheckedCreateWithoutChatsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutChatsInput
   connect?: Prisma.UserWhereUniqueInput
 }
 
-export type UserUpdateOneWithoutChatSessionsNestedInput = {
-  create?: Prisma.XOR<Prisma.UserCreateWithoutChatSessionsInput, Prisma.UserUncheckedCreateWithoutChatSessionsInput>
-  connectOrCreate?: Prisma.UserCreateOrConnectWithoutChatSessionsInput
-  upsert?: Prisma.UserUpsertWithoutChatSessionsInput
+export type UserCreateNestedOneWithoutAssignedChatsInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutAssignedChatsInput, Prisma.UserUncheckedCreateWithoutAssignedChatsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutAssignedChatsInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneRequiredWithoutChatsNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutChatsInput, Prisma.UserUncheckedCreateWithoutChatsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutChatsInput
+  upsert?: Prisma.UserUpsertWithoutChatsInput
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutChatsInput, Prisma.UserUpdateWithoutChatsInput>, Prisma.UserUncheckedUpdateWithoutChatsInput>
+}
+
+export type UserUpdateOneWithoutAssignedChatsNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutAssignedChatsInput, Prisma.UserUncheckedCreateWithoutAssignedChatsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutAssignedChatsInput
+  upsert?: Prisma.UserUpsertWithoutAssignedChatsInput
   disconnect?: Prisma.UserWhereInput | boolean
   delete?: Prisma.UserWhereInput | boolean
   connect?: Prisma.UserWhereUniqueInput
-  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutChatSessionsInput, Prisma.UserUpdateWithoutChatSessionsInput>, Prisma.UserUncheckedUpdateWithoutChatSessionsInput>
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutAssignedChatsInput, Prisma.UserUpdateWithoutAssignedChatsInput>, Prisma.UserUncheckedUpdateWithoutAssignedChatsInput>
 }
 
-export type UserCreateWithoutChatSessionsInput = {
+export type UserCreateNestedOneWithoutMessagesInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutMessagesInput, Prisma.UserUncheckedCreateWithoutMessagesInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutMessagesInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneRequiredWithoutMessagesNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutMessagesInput, Prisma.UserUncheckedCreateWithoutMessagesInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutMessagesInput
+  upsert?: Prisma.UserUpsertWithoutMessagesInput
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutMessagesInput, Prisma.UserUpdateWithoutMessagesInput>, Prisma.UserUncheckedUpdateWithoutMessagesInput>
+}
+
+export type UserCreateNestedOneWithoutActivityLogsInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutActivityLogsInput, Prisma.UserUncheckedCreateWithoutActivityLogsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutActivityLogsInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneRequiredWithoutActivityLogsNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutActivityLogsInput, Prisma.UserUncheckedCreateWithoutActivityLogsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutActivityLogsInput
+  upsert?: Prisma.UserUpsertWithoutActivityLogsInput
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutActivityLogsInput, Prisma.UserUpdateWithoutActivityLogsInput>, Prisma.UserUncheckedUpdateWithoutActivityLogsInput>
+}
+
+export type UserCreateNestedOneWithoutAgentPerformanceInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutAgentPerformanceInput, Prisma.UserUncheckedCreateWithoutAgentPerformanceInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutAgentPerformanceInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneRequiredWithoutAgentPerformanceNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutAgentPerformanceInput, Prisma.UserUncheckedCreateWithoutAgentPerformanceInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutAgentPerformanceInput
+  upsert?: Prisma.UserUpsertWithoutAgentPerformanceInput
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutAgentPerformanceInput, Prisma.UserUpdateWithoutAgentPerformanceInput>, Prisma.UserUncheckedUpdateWithoutAgentPerformanceInput>
+}
+
+export type UserCreateWithoutChatsInput = {
   id?: string
+  email: string
   name: string
+  password: string
+  role?: string
+  isBanned?: boolean
   createdAt?: Date | string
+  updatedAt?: Date | string
+  messages?: Prisma.MessageCreateNestedManyWithoutUserInput
+  assignedChats?: Prisma.ChatSessionCreateNestedManyWithoutAssignedAgentInput
+  activityLogs?: Prisma.ActivityLogCreateNestedManyWithoutUserInput
+  agentPerformance?: Prisma.AgentPerformanceCreateNestedManyWithoutAgentInput
 }
 
-export type UserUncheckedCreateWithoutChatSessionsInput = {
+export type UserUncheckedCreateWithoutChatsInput = {
   id?: string
+  email: string
   name: string
+  password: string
+  role?: string
+  isBanned?: boolean
   createdAt?: Date | string
+  updatedAt?: Date | string
+  messages?: Prisma.MessageUncheckedCreateNestedManyWithoutUserInput
+  assignedChats?: Prisma.ChatSessionUncheckedCreateNestedManyWithoutAssignedAgentInput
+  activityLogs?: Prisma.ActivityLogUncheckedCreateNestedManyWithoutUserInput
+  agentPerformance?: Prisma.AgentPerformanceUncheckedCreateNestedManyWithoutAgentInput
 }
 
-export type UserCreateOrConnectWithoutChatSessionsInput = {
+export type UserCreateOrConnectWithoutChatsInput = {
   where: Prisma.UserWhereUniqueInput
-  create: Prisma.XOR<Prisma.UserCreateWithoutChatSessionsInput, Prisma.UserUncheckedCreateWithoutChatSessionsInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutChatsInput, Prisma.UserUncheckedCreateWithoutChatsInput>
 }
 
-export type UserUpsertWithoutChatSessionsInput = {
-  update: Prisma.XOR<Prisma.UserUpdateWithoutChatSessionsInput, Prisma.UserUncheckedUpdateWithoutChatSessionsInput>
-  create: Prisma.XOR<Prisma.UserCreateWithoutChatSessionsInput, Prisma.UserUncheckedCreateWithoutChatSessionsInput>
+export type UserCreateWithoutAssignedChatsInput = {
+  id?: string
+  email: string
+  name: string
+  password: string
+  role?: string
+  isBanned?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  chats?: Prisma.ChatSessionCreateNestedManyWithoutUserInput
+  messages?: Prisma.MessageCreateNestedManyWithoutUserInput
+  activityLogs?: Prisma.ActivityLogCreateNestedManyWithoutUserInput
+  agentPerformance?: Prisma.AgentPerformanceCreateNestedManyWithoutAgentInput
+}
+
+export type UserUncheckedCreateWithoutAssignedChatsInput = {
+  id?: string
+  email: string
+  name: string
+  password: string
+  role?: string
+  isBanned?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  chats?: Prisma.ChatSessionUncheckedCreateNestedManyWithoutUserInput
+  messages?: Prisma.MessageUncheckedCreateNestedManyWithoutUserInput
+  activityLogs?: Prisma.ActivityLogUncheckedCreateNestedManyWithoutUserInput
+  agentPerformance?: Prisma.AgentPerformanceUncheckedCreateNestedManyWithoutAgentInput
+}
+
+export type UserCreateOrConnectWithoutAssignedChatsInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutAssignedChatsInput, Prisma.UserUncheckedCreateWithoutAssignedChatsInput>
+}
+
+export type UserUpsertWithoutChatsInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutChatsInput, Prisma.UserUncheckedUpdateWithoutChatsInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutChatsInput, Prisma.UserUncheckedCreateWithoutChatsInput>
   where?: Prisma.UserWhereInput
 }
 
-export type UserUpdateToOneWithWhereWithoutChatSessionsInput = {
+export type UserUpdateToOneWithWhereWithoutChatsInput = {
   where?: Prisma.UserWhereInput
-  data: Prisma.XOR<Prisma.UserUpdateWithoutChatSessionsInput, Prisma.UserUncheckedUpdateWithoutChatSessionsInput>
+  data: Prisma.XOR<Prisma.UserUpdateWithoutChatsInput, Prisma.UserUncheckedUpdateWithoutChatsInput>
 }
 
-export type UserUpdateWithoutChatSessionsInput = {
+export type UserUpdateWithoutChatsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.StringFieldUpdateOperationsInput | string
+  isBanned?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  messages?: Prisma.MessageUpdateManyWithoutUserNestedInput
+  assignedChats?: Prisma.ChatSessionUpdateManyWithoutAssignedAgentNestedInput
+  activityLogs?: Prisma.ActivityLogUpdateManyWithoutUserNestedInput
+  agentPerformance?: Prisma.AgentPerformanceUpdateManyWithoutAgentNestedInput
 }
 
-export type UserUncheckedUpdateWithoutChatSessionsInput = {
+export type UserUncheckedUpdateWithoutChatsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.StringFieldUpdateOperationsInput | string
+  isBanned?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  messages?: Prisma.MessageUncheckedUpdateManyWithoutUserNestedInput
+  assignedChats?: Prisma.ChatSessionUncheckedUpdateManyWithoutAssignedAgentNestedInput
+  activityLogs?: Prisma.ActivityLogUncheckedUpdateManyWithoutUserNestedInput
+  agentPerformance?: Prisma.AgentPerformanceUncheckedUpdateManyWithoutAgentNestedInput
+}
+
+export type UserUpsertWithoutAssignedChatsInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutAssignedChatsInput, Prisma.UserUncheckedUpdateWithoutAssignedChatsInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutAssignedChatsInput, Prisma.UserUncheckedCreateWithoutAssignedChatsInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutAssignedChatsInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutAssignedChatsInput, Prisma.UserUncheckedUpdateWithoutAssignedChatsInput>
+}
+
+export type UserUpdateWithoutAssignedChatsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.StringFieldUpdateOperationsInput | string
+  isBanned?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  chats?: Prisma.ChatSessionUpdateManyWithoutUserNestedInput
+  messages?: Prisma.MessageUpdateManyWithoutUserNestedInput
+  activityLogs?: Prisma.ActivityLogUpdateManyWithoutUserNestedInput
+  agentPerformance?: Prisma.AgentPerformanceUpdateManyWithoutAgentNestedInput
+}
+
+export type UserUncheckedUpdateWithoutAssignedChatsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.StringFieldUpdateOperationsInput | string
+  isBanned?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  chats?: Prisma.ChatSessionUncheckedUpdateManyWithoutUserNestedInput
+  messages?: Prisma.MessageUncheckedUpdateManyWithoutUserNestedInput
+  activityLogs?: Prisma.ActivityLogUncheckedUpdateManyWithoutUserNestedInput
+  agentPerformance?: Prisma.AgentPerformanceUncheckedUpdateManyWithoutAgentNestedInput
+}
+
+export type UserCreateWithoutMessagesInput = {
+  id?: string
+  email: string
+  name: string
+  password: string
+  role?: string
+  isBanned?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  chats?: Prisma.ChatSessionCreateNestedManyWithoutUserInput
+  assignedChats?: Prisma.ChatSessionCreateNestedManyWithoutAssignedAgentInput
+  activityLogs?: Prisma.ActivityLogCreateNestedManyWithoutUserInput
+  agentPerformance?: Prisma.AgentPerformanceCreateNestedManyWithoutAgentInput
+}
+
+export type UserUncheckedCreateWithoutMessagesInput = {
+  id?: string
+  email: string
+  name: string
+  password: string
+  role?: string
+  isBanned?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  chats?: Prisma.ChatSessionUncheckedCreateNestedManyWithoutUserInput
+  assignedChats?: Prisma.ChatSessionUncheckedCreateNestedManyWithoutAssignedAgentInput
+  activityLogs?: Prisma.ActivityLogUncheckedCreateNestedManyWithoutUserInput
+  agentPerformance?: Prisma.AgentPerformanceUncheckedCreateNestedManyWithoutAgentInput
+}
+
+export type UserCreateOrConnectWithoutMessagesInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutMessagesInput, Prisma.UserUncheckedCreateWithoutMessagesInput>
+}
+
+export type UserUpsertWithoutMessagesInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutMessagesInput, Prisma.UserUncheckedUpdateWithoutMessagesInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutMessagesInput, Prisma.UserUncheckedCreateWithoutMessagesInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutMessagesInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutMessagesInput, Prisma.UserUncheckedUpdateWithoutMessagesInput>
+}
+
+export type UserUpdateWithoutMessagesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.StringFieldUpdateOperationsInput | string
+  isBanned?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  chats?: Prisma.ChatSessionUpdateManyWithoutUserNestedInput
+  assignedChats?: Prisma.ChatSessionUpdateManyWithoutAssignedAgentNestedInput
+  activityLogs?: Prisma.ActivityLogUpdateManyWithoutUserNestedInput
+  agentPerformance?: Prisma.AgentPerformanceUpdateManyWithoutAgentNestedInput
+}
+
+export type UserUncheckedUpdateWithoutMessagesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.StringFieldUpdateOperationsInput | string
+  isBanned?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  chats?: Prisma.ChatSessionUncheckedUpdateManyWithoutUserNestedInput
+  assignedChats?: Prisma.ChatSessionUncheckedUpdateManyWithoutAssignedAgentNestedInput
+  activityLogs?: Prisma.ActivityLogUncheckedUpdateManyWithoutUserNestedInput
+  agentPerformance?: Prisma.AgentPerformanceUncheckedUpdateManyWithoutAgentNestedInput
+}
+
+export type UserCreateWithoutActivityLogsInput = {
+  id?: string
+  email: string
+  name: string
+  password: string
+  role?: string
+  isBanned?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  chats?: Prisma.ChatSessionCreateNestedManyWithoutUserInput
+  messages?: Prisma.MessageCreateNestedManyWithoutUserInput
+  assignedChats?: Prisma.ChatSessionCreateNestedManyWithoutAssignedAgentInput
+  agentPerformance?: Prisma.AgentPerformanceCreateNestedManyWithoutAgentInput
+}
+
+export type UserUncheckedCreateWithoutActivityLogsInput = {
+  id?: string
+  email: string
+  name: string
+  password: string
+  role?: string
+  isBanned?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  chats?: Prisma.ChatSessionUncheckedCreateNestedManyWithoutUserInput
+  messages?: Prisma.MessageUncheckedCreateNestedManyWithoutUserInput
+  assignedChats?: Prisma.ChatSessionUncheckedCreateNestedManyWithoutAssignedAgentInput
+  agentPerformance?: Prisma.AgentPerformanceUncheckedCreateNestedManyWithoutAgentInput
+}
+
+export type UserCreateOrConnectWithoutActivityLogsInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutActivityLogsInput, Prisma.UserUncheckedCreateWithoutActivityLogsInput>
+}
+
+export type UserUpsertWithoutActivityLogsInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutActivityLogsInput, Prisma.UserUncheckedUpdateWithoutActivityLogsInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutActivityLogsInput, Prisma.UserUncheckedCreateWithoutActivityLogsInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutActivityLogsInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutActivityLogsInput, Prisma.UserUncheckedUpdateWithoutActivityLogsInput>
+}
+
+export type UserUpdateWithoutActivityLogsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.StringFieldUpdateOperationsInput | string
+  isBanned?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  chats?: Prisma.ChatSessionUpdateManyWithoutUserNestedInput
+  messages?: Prisma.MessageUpdateManyWithoutUserNestedInput
+  assignedChats?: Prisma.ChatSessionUpdateManyWithoutAssignedAgentNestedInput
+  agentPerformance?: Prisma.AgentPerformanceUpdateManyWithoutAgentNestedInput
+}
+
+export type UserUncheckedUpdateWithoutActivityLogsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.StringFieldUpdateOperationsInput | string
+  isBanned?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  chats?: Prisma.ChatSessionUncheckedUpdateManyWithoutUserNestedInput
+  messages?: Prisma.MessageUncheckedUpdateManyWithoutUserNestedInput
+  assignedChats?: Prisma.ChatSessionUncheckedUpdateManyWithoutAssignedAgentNestedInput
+  agentPerformance?: Prisma.AgentPerformanceUncheckedUpdateManyWithoutAgentNestedInput
+}
+
+export type UserCreateWithoutAgentPerformanceInput = {
+  id?: string
+  email: string
+  name: string
+  password: string
+  role?: string
+  isBanned?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  chats?: Prisma.ChatSessionCreateNestedManyWithoutUserInput
+  messages?: Prisma.MessageCreateNestedManyWithoutUserInput
+  assignedChats?: Prisma.ChatSessionCreateNestedManyWithoutAssignedAgentInput
+  activityLogs?: Prisma.ActivityLogCreateNestedManyWithoutUserInput
+}
+
+export type UserUncheckedCreateWithoutAgentPerformanceInput = {
+  id?: string
+  email: string
+  name: string
+  password: string
+  role?: string
+  isBanned?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  chats?: Prisma.ChatSessionUncheckedCreateNestedManyWithoutUserInput
+  messages?: Prisma.MessageUncheckedCreateNestedManyWithoutUserInput
+  assignedChats?: Prisma.ChatSessionUncheckedCreateNestedManyWithoutAssignedAgentInput
+  activityLogs?: Prisma.ActivityLogUncheckedCreateNestedManyWithoutUserInput
+}
+
+export type UserCreateOrConnectWithoutAgentPerformanceInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutAgentPerformanceInput, Prisma.UserUncheckedCreateWithoutAgentPerformanceInput>
+}
+
+export type UserUpsertWithoutAgentPerformanceInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutAgentPerformanceInput, Prisma.UserUncheckedUpdateWithoutAgentPerformanceInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutAgentPerformanceInput, Prisma.UserUncheckedCreateWithoutAgentPerformanceInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutAgentPerformanceInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutAgentPerformanceInput, Prisma.UserUncheckedUpdateWithoutAgentPerformanceInput>
+}
+
+export type UserUpdateWithoutAgentPerformanceInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.StringFieldUpdateOperationsInput | string
+  isBanned?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  chats?: Prisma.ChatSessionUpdateManyWithoutUserNestedInput
+  messages?: Prisma.MessageUpdateManyWithoutUserNestedInput
+  assignedChats?: Prisma.ChatSessionUpdateManyWithoutAssignedAgentNestedInput
+  activityLogs?: Prisma.ActivityLogUpdateManyWithoutUserNestedInput
+}
+
+export type UserUncheckedUpdateWithoutAgentPerformanceInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.StringFieldUpdateOperationsInput | string
+  isBanned?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  chats?: Prisma.ChatSessionUncheckedUpdateManyWithoutUserNestedInput
+  messages?: Prisma.MessageUncheckedUpdateManyWithoutUserNestedInput
+  assignedChats?: Prisma.ChatSessionUncheckedUpdateManyWithoutAssignedAgentNestedInput
+  activityLogs?: Prisma.ActivityLogUncheckedUpdateManyWithoutUserNestedInput
 }
 
 
@@ -335,11 +886,19 @@ export type UserUncheckedUpdateWithoutChatSessionsInput = {
  */
 
 export type UserCountOutputType = {
-  chatSessions: number
+  chats: number
+  messages: number
+  assignedChats: number
+  activityLogs: number
+  agentPerformance: number
 }
 
 export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  chatSessions?: boolean | UserCountOutputTypeCountChatSessionsArgs
+  chats?: boolean | UserCountOutputTypeCountChatsArgs
+  messages?: boolean | UserCountOutputTypeCountMessagesArgs
+  assignedChats?: boolean | UserCountOutputTypeCountAssignedChatsArgs
+  activityLogs?: boolean | UserCountOutputTypeCountActivityLogsArgs
+  agentPerformance?: boolean | UserCountOutputTypeCountAgentPerformanceArgs
 }
 
 /**
@@ -355,40 +914,96 @@ export type UserCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.Extensi
 /**
  * UserCountOutputType without action
  */
-export type UserCountOutputTypeCountChatSessionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type UserCountOutputTypeCountChatsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   where?: Prisma.ChatSessionWhereInput
+}
+
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountMessagesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.MessageWhereInput
+}
+
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountAssignedChatsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.ChatSessionWhereInput
+}
+
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountActivityLogsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.ActivityLogWhereInput
+}
+
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountAgentPerformanceArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.AgentPerformanceWhereInput
 }
 
 
 export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
+  email?: boolean
   name?: boolean
+  password?: boolean
+  role?: boolean
+  isBanned?: boolean
   createdAt?: boolean
-  chatSessions?: boolean | Prisma.User$chatSessionsArgs<ExtArgs>
+  updatedAt?: boolean
+  chats?: boolean | Prisma.User$chatsArgs<ExtArgs>
+  messages?: boolean | Prisma.User$messagesArgs<ExtArgs>
+  assignedChats?: boolean | Prisma.User$assignedChatsArgs<ExtArgs>
+  activityLogs?: boolean | Prisma.User$activityLogsArgs<ExtArgs>
+  agentPerformance?: boolean | Prisma.User$agentPerformanceArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["user"]>
 
 export type UserSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
+  email?: boolean
   name?: boolean
+  password?: boolean
+  role?: boolean
+  isBanned?: boolean
   createdAt?: boolean
+  updatedAt?: boolean
 }, ExtArgs["result"]["user"]>
 
 export type UserSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
+  email?: boolean
   name?: boolean
+  password?: boolean
+  role?: boolean
+  isBanned?: boolean
   createdAt?: boolean
+  updatedAt?: boolean
 }, ExtArgs["result"]["user"]>
 
 export type UserSelectScalar = {
   id?: boolean
+  email?: boolean
   name?: boolean
+  password?: boolean
+  role?: boolean
+  isBanned?: boolean
   createdAt?: boolean
+  updatedAt?: boolean
 }
 
-export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "createdAt", ExtArgs["result"]["user"]>
+export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "email" | "name" | "password" | "role" | "isBanned" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>
 export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  chatSessions?: boolean | Prisma.User$chatSessionsArgs<ExtArgs>
+  chats?: boolean | Prisma.User$chatsArgs<ExtArgs>
+  messages?: boolean | Prisma.User$messagesArgs<ExtArgs>
+  assignedChats?: boolean | Prisma.User$assignedChatsArgs<ExtArgs>
+  activityLogs?: boolean | Prisma.User$activityLogsArgs<ExtArgs>
+  agentPerformance?: boolean | Prisma.User$agentPerformanceArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type UserIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
@@ -397,12 +1012,21 @@ export type UserIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensi
 export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "User"
   objects: {
-    chatSessions: Prisma.$ChatSessionPayload<ExtArgs>[]
+    chats: Prisma.$ChatSessionPayload<ExtArgs>[]
+    messages: Prisma.$MessagePayload<ExtArgs>[]
+    assignedChats: Prisma.$ChatSessionPayload<ExtArgs>[]
+    activityLogs: Prisma.$ActivityLogPayload<ExtArgs>[]
+    agentPerformance: Prisma.$AgentPerformancePayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
+    email: string
     name: string
+    password: string
+    role: string
+    isBanned: boolean
     createdAt: Date
+    updatedAt: Date
   }, ExtArgs["result"]["user"]>
   composites: {}
 }
@@ -797,7 +1421,11 @@ readonly fields: UserFieldRefs;
  */
 export interface Prisma__UserClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
-  chatSessions<T extends Prisma.User$chatSessionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$chatSessionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ChatSessionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  chats<T extends Prisma.User$chatsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$chatsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ChatSessionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  messages<T extends Prisma.User$messagesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$messagesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$MessagePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  assignedChats<T extends Prisma.User$assignedChatsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$assignedChatsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ChatSessionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  activityLogs<T extends Prisma.User$activityLogsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$activityLogsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ActivityLogPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  agentPerformance<T extends Prisma.User$agentPerformanceArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$agentPerformanceArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AgentPerformancePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -828,8 +1456,13 @@ export interface Prisma__UserClient<T, Null = never, ExtArgs extends runtime.Typ
  */
 export interface UserFieldRefs {
   readonly id: Prisma.FieldRef<"User", 'String'>
+  readonly email: Prisma.FieldRef<"User", 'String'>
   readonly name: Prisma.FieldRef<"User", 'String'>
+  readonly password: Prisma.FieldRef<"User", 'String'>
+  readonly role: Prisma.FieldRef<"User", 'String'>
+  readonly isBanned: Prisma.FieldRef<"User", 'Boolean'>
   readonly createdAt: Prisma.FieldRef<"User", 'DateTime'>
+  readonly updatedAt: Prisma.FieldRef<"User", 'DateTime'>
 }
     
 
@@ -1218,9 +1851,9 @@ export type UserDeleteManyArgs<ExtArgs extends runtime.Types.Extensions.Internal
 }
 
 /**
- * User.chatSessions
+ * User.chats
  */
-export type User$chatSessionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type User$chatsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
    * Select specific fields to fetch from the ChatSession
    */
@@ -1239,6 +1872,102 @@ export type User$chatSessionsArgs<ExtArgs extends runtime.Types.Extensions.Inter
   take?: number
   skip?: number
   distinct?: Prisma.ChatSessionScalarFieldEnum | Prisma.ChatSessionScalarFieldEnum[]
+}
+
+/**
+ * User.messages
+ */
+export type User$messagesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Message
+   */
+  select?: Prisma.MessageSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Message
+   */
+  omit?: Prisma.MessageOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.MessageInclude<ExtArgs> | null
+  where?: Prisma.MessageWhereInput
+  orderBy?: Prisma.MessageOrderByWithRelationInput | Prisma.MessageOrderByWithRelationInput[]
+  cursor?: Prisma.MessageWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.MessageScalarFieldEnum | Prisma.MessageScalarFieldEnum[]
+}
+
+/**
+ * User.assignedChats
+ */
+export type User$assignedChatsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the ChatSession
+   */
+  select?: Prisma.ChatSessionSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the ChatSession
+   */
+  omit?: Prisma.ChatSessionOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ChatSessionInclude<ExtArgs> | null
+  where?: Prisma.ChatSessionWhereInput
+  orderBy?: Prisma.ChatSessionOrderByWithRelationInput | Prisma.ChatSessionOrderByWithRelationInput[]
+  cursor?: Prisma.ChatSessionWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.ChatSessionScalarFieldEnum | Prisma.ChatSessionScalarFieldEnum[]
+}
+
+/**
+ * User.activityLogs
+ */
+export type User$activityLogsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the ActivityLog
+   */
+  select?: Prisma.ActivityLogSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the ActivityLog
+   */
+  omit?: Prisma.ActivityLogOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ActivityLogInclude<ExtArgs> | null
+  where?: Prisma.ActivityLogWhereInput
+  orderBy?: Prisma.ActivityLogOrderByWithRelationInput | Prisma.ActivityLogOrderByWithRelationInput[]
+  cursor?: Prisma.ActivityLogWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.ActivityLogScalarFieldEnum | Prisma.ActivityLogScalarFieldEnum[]
+}
+
+/**
+ * User.agentPerformance
+ */
+export type User$agentPerformanceArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the AgentPerformance
+   */
+  select?: Prisma.AgentPerformanceSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the AgentPerformance
+   */
+  omit?: Prisma.AgentPerformanceOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.AgentPerformanceInclude<ExtArgs> | null
+  where?: Prisma.AgentPerformanceWhereInput
+  orderBy?: Prisma.AgentPerformanceOrderByWithRelationInput | Prisma.AgentPerformanceOrderByWithRelationInput[]
+  cursor?: Prisma.AgentPerformanceWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.AgentPerformanceScalarFieldEnum | Prisma.AgentPerformanceScalarFieldEnum[]
 }
 
 /**
