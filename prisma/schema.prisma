@@ -14,22 +14,40 @@ datasource db {
 }
 
 model ChatSession {
-  id        String    @id @default(uuid())
-  createdAt DateTime  @default(now())
-  messages  Message[]
+  id           String     @id @default(uuid())
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+  status       ChatStatus @default(ACTIVE)
+  closedAt     DateTime?
+  lastMessage  String?
+  messages     Message[]
+  userId       String?
+  user         User?      @relation(fields: [userId], references: [id])
 }
 
 model Message {
-  id        String    @id @default(uuid())
+  id        String      @id @default(uuid())
   content   String
   sender    Sender
-  createdAt DateTime  @default(now())
+  createdAt DateTime    @default(now())
 
   chatId    String
   chat      ChatSession @relation(fields: [chatId], references: [id])
 }
 
+model User {
+  id          String        @id @default(uuid())
+  name        String
+  createdAt   DateTime      @default(now())
+  chatSessions ChatSession[]
+}
+
 enum Sender {
   USER
   ADMIN
+}
+
+enum ChatStatus {
+  ACTIVE
+  CLOSED
 }

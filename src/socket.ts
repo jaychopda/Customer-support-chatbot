@@ -1,6 +1,6 @@
 import { Server } from "socket.io";
 import { Server as HttpServer } from "http";
-import { prisma } from "./lib/prisma"; // Assume prismaClient is set up properly
+import { prisma } from "./lib/prisma"; // Prisma client instance
 
 interface SendMessagePayload {
   chatId?: string;
@@ -25,10 +25,27 @@ export const initSocket = (server: HttpServer) => {
     socket.on("send-message", async (payload: SendMessagePayload) => {
       let chatId = payload.chatId;
 
+      if (chatId) {
+        const existing = await prisma.chatSession.findUnique({
+          where: { id: chatId },
+          select: { status: true },
+        });
+
+        if (!existing) {
+          socket.emit("chat-error", { message: "Chat not found" });
+          return;
+        }
+
+        if (existing.status === "CLOSED") {
+          socket.emit("chat-closed", { chatId, reason: "Chat has been closed" });
+          return;
+        }
+      }
+
       // create new chat if not exists
       if (!chatId) {
         const chat = await prisma.chatSession.create({
-          data: {},
+          data: { status: "ACTIVE" },
         });
         chatId = chat.id;
       }
@@ -39,6 +56,16 @@ export const initSocket = (server: HttpServer) => {
           content: payload.content,
           sender: payload.sender,
           chatId,
+        },
+      });
+
+      // bump chat metadata for ordering and previews
+      await prisma.chatSession.update({
+        where: { id: chatId },
+        data: {
+          lastMessage: payload.content,
+          status: "ACTIVE",
+          closedAt: null,
         },
       });
 
