@@ -1,7 +1,7 @@
-const http = require("http");
-const dotenv = require("dotenv");
-const app = require("./app");
-const {initSocket} = require("./socket");
+import http from "http";
+import dotenv from "dotenv";
+import app from "./app";
+import { initSocket } from "./socket"; // ✅ named import
 
 dotenv.config();
 
