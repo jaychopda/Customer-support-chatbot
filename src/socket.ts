@@ -11,8 +11,21 @@ interface SendMessagePayload {
 }
 
 export const initSocket = (server: HttpServer) => {
+  const allowedOrigins: string[] = [
+    "http://localhost:3000",
+    "http://localhost:3001",
+  ];
+
+  if (process.env.FRONTEND_URL) {
+    allowedOrigins.push(process.env.FRONTEND_URL);
+  }
+
   const io = new Server(server, {
-    cors: { origin: "*" },
+    cors: {
+      origin: allowedOrigins.length > 0 ? allowedOrigins : true,
+      credentials: true,
+      methods: ["GET", "POST"],
+    },
   });
 
   (global as any).io = io;

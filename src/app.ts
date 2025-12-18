@@ -2,11 +2,31 @@ import express, { Request, Response, NextFunction } from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
 import adminRoutes from "./routes/admin.routes";
+import authRoutes from "./routes/auth.routes";
 import { prisma } from "./lib/prisma";
 
 const app = express();
 
-app.use(cors({ origin: "*", credentials: true }));
+const allowedOrigins = [
+  "http://localhost:3000",
+  "http://localhost:3001",
+  process.env.FRONTEND_URL,
+].filter(Boolean);
+
+app.use(
+  cors({
+    origin: (origin, callback) => {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(null, true);
+      }
+    },
+    credentials: true,
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+  })
+);
 app.use(express.json());
 app.use(cookieParser());
 
@@ -151,6 +171,7 @@ app.post("/chat/:id/close", async (req: Request, res: Response) => {
     }
 });
 
+app.use("/auth", authRoutes);
 app.use("/admin", adminRoutes);
 
 app.get("/", (_req: Request, res: Response) => {
